@@ -1,0 +1,48 @@
+{
+  "generatedAt": "2026-06-17T22:36:00.982Z",
+  "repoRoot": "/Users/roger/Developer/my-opensource/agent-evidence-binder-skill/fixtures/sample-repo",
+  "claims": [
+    {
+      "id": "readme",
+      "text": "The repo documents a quickstart.",
+      "status": "sourced",
+      "evidence": [
+        {
+          "path": "README.md",
+          "exists": true
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "inferred",
+      "text": "The tool supports review workflows.",
+      "status": "sourced",
+      "evidence": [
+        {
+          "path": "src/index.js",
+          "exists": true
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "unsupported",
+      "text": "The project has production users.",
+      "status": "needs-review",
+      "evidence": [
+        {
+          "path": "docs/users.md",
+          "exists": false
+        }
+      ],
+      "note": ""
+    }
+  ],
+  "commands": [
+    {
+      "name": "npm test",
+      "status": "pass"
+    }
+  ]
+}
