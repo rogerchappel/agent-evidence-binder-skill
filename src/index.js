@@ -1,0 +1,8 @@
+import fs from 'node:fs';
+import path from 'node:path';
+export function readJson(file){return JSON.parse(fs.readFileSync(file,'utf8'));}
+export function ensureInside(root,target){const base=path.resolve(root);const resolved=path.resolve(base,target);if(resolved!==base&&!resolved.startsWith(base+path.sep)) throw new Error('Path escapes repository root: '+target);return resolved;}
+export function classifyClaim(repoRoot,claim){const evidence=Array.isArray(claim.evidence)?claim.evidence:[];const checked=evidence.map((item)=>{const p=typeof item==='string'?item:item.path;const file=ensureInside(repoRoot,p);return {path:path.relative(repoRoot,file),exists:fs.existsSync(file)};});const status=checked.some((x)=>x.exists)?'sourced':(claim.inference?'inferred':'needs-review');return {id:claim.id,text:claim.text,status,evidence:checked,note:claim.note||''};}
+export function buildEvidencePack({repoRoot,claims=[],commands=[]}){return {generatedAt:new Date().toISOString(),repoRoot:path.resolve(repoRoot),claims:claims.map((c)=>classifyClaim(repoRoot,c)),commands};}
+export function renderSummary(pack){const counts=pack.claims.reduce((a,c)=>{a[c.status]=(a[c.status]||0)+1;return a;},{});const lines=['# Evidence Summary','','Generated: '+pack.generatedAt,'','## Status Counts'];for(const k of ['sourced','inferred','needs-review']) lines.push('- '+k+': '+(counts[k]||0));lines.push('','## Claims');for(const c of pack.claims) lines.push('- ['+c.status+'] '+c.id+': '+c.text);return lines.join('\n')+'\n';}
+export function writeEvidencePack(pack,outDir){fs.mkdirSync(outDir,{recursive:true});fs.writeFileSync(path.join(outDir,'evidence-pack.json'),JSON.stringify(pack,null,2)+'\n');fs.writeFileSync(path.join(outDir,'evidence-summary.md'),renderSummary(pack));}
