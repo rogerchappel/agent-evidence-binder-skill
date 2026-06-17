@@ -1,0 +1,26 @@
+{
+  "claims": [
+    {
+      "id": "readme",
+      "text": "The repo documents a quickstart.",
+      "evidence": [
+        "README.md"
+      ]
+    },
+    {
+      "id": "inferred",
+      "text": "The tool supports review workflows.",
+      "inference": true,
+      "evidence": [
+        "src/index.js"
+      ]
+    },
+    {
+      "id": "unsupported",
+      "text": "The project has production users.",
+      "evidence": [
+        "docs/users.md"
+      ]
+    }
+  ]
+}
