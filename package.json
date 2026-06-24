@@ -33,5 +33,9 @@
     "SKILL.md",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "bugs": {
+    "url": "https://github.com/rogerchappel/agent-evidence-binder-skill/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/agent-evidence-binder-skill#readme"
 }
