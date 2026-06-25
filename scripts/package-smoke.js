@@ -13,7 +13,8 @@ const required=[
   'fixtures/commands.json',
   'README.md',
   'SKILL.md',
-  'LICENSE'
+  'LICENSE',
+  'SECURITY.md'
 ];
 const missing=required.filter((file)=>!files.has(file));
 if(missing.length){
