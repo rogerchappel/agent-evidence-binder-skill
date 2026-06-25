@@ -5,7 +5,7 @@ Bundle repository evidence, command output, and claims into reviewable local evi
 ## Quickstart
 
 ```bash
-npm install
+npm ci
 npm run release:check
 npm run smoke
 ```
@@ -36,3 +36,6 @@ Local files only. No network calls, publishing, or external account writes. Gene
 `npm run release:check` runs syntax checks, the build placeholder, unit tests,
 the fixture-backed smoke, and a package smoke that verifies key runtime files
 are present in the tarball.
+
+CI uses the committed lockfile with `npm ci` so pull requests exercise the same
+dependency graph as local release checks.
