@@ -8,6 +8,8 @@ Classification: ship
 - npm run check
 - npm run build
 - npm run smoke
+- npm run package:smoke
+- npm run release:check
 
 ## Pull Request Notes
 

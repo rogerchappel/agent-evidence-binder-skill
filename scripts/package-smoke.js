@@ -11,6 +11,8 @@ const required=[
   'scripts/check.js',
   'fixtures/claims.json',
   'fixtures/commands.json',
+  'docs/RELEASE_CANDIDATE.md',
+  'docs/RELEASE_CHECKLIST.md',
   'README.md',
   'SKILL.md',
   'LICENSE',
