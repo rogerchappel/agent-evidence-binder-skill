@@ -11,12 +11,15 @@ const required=[
   'scripts/check.js',
   'fixtures/claims.json',
   'fixtures/commands.json',
+  'docs/API.md',
+  'docs/EXAMPLES.md',
   'docs/RELEASE_CANDIDATE.md',
   'docs/RELEASE_CHECKLIST.md',
   'README.md',
   'SKILL.md',
   'LICENSE',
-  'SECURITY.md'
+  'SECURITY.md',
+  'CHANGELOG.md'
 ];
 const missing=required.filter((file)=>!files.has(file));
 if(missing.length){
