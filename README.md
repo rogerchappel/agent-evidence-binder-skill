@@ -40,5 +40,5 @@ are present in the tarball.
 CI uses the committed lockfile with `npm ci` so pull requests exercise the same
 dependency graph as local release checks.
 
-The package smoke also verifies that the license and security policy are
-included in the npm tarball.
+The package smoke also verifies that the API notes, examples, changelog,
+license, and security policy are included in the npm tarball.
