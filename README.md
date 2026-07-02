@@ -42,3 +42,12 @@ dependency graph as local release checks.
 
 The package smoke also verifies that the license and security policy are
 included in the npm tarball.
+
+## Local Verification
+
+Run the committed test suite before publishing changes:
+
+```sh
+npm test
+```
+
