@@ -37,6 +37,9 @@ Local files only. No network calls, publishing, or external account writes. Gene
 the fixture-backed smoke, and a package smoke that verifies key runtime files
 are present in the tarball.
 
+`npm run lint` is an alias for the deterministic repository checks used by the
+release gate.
+
 CI uses the committed lockfile with `npm ci` so pull requests exercise the same
 dependency graph as local release checks.
 
