@@ -12,7 +12,8 @@
     "build": "node scripts/build.js",
     "smoke": "bash scripts/validate.sh",
     "package:smoke": "node scripts/package-smoke.js",
-    "release:check": "npm run check && npm run build && npm test && npm run smoke && npm run package:smoke"
+    "release:check": "npm run check && npm run build && npm test && npm run smoke && npm run package:smoke",
+    "lint": "npm run check"
   },
   "keywords": [
     "agent-skill",
@@ -39,5 +40,8 @@
   "bugs": {
     "url": "https://github.com/rogerchappel/agent-evidence-binder-skill/issues"
   },
-  "homepage": "https://github.com/rogerchappel/agent-evidence-binder-skill#readme"
+  "homepage": "https://github.com/rogerchappel/agent-evidence-binder-skill#readme",
+  "engines": {
+    "node": ">=18"
+  }
 }
