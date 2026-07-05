@@ -53,3 +53,24 @@ Run the committed test suite before publishing changes:
 ```sh
 npm test
 ```
+
+## CLI
+
+```bash
+node src/cli.js fixtures/sample.json --format markdown
+node src/cli.js fixtures/sample.json --format json
+```
+
+Use the Markdown report for reviewer handoff and the JSON report for automation that needs stable fields.
+
+## Verification
+
+```bash
+npm test
+npm run check
+npm run smoke
+```
+
+## Limitations
+
+The binder trusts local file paths and command notes supplied by the caller. It does not authenticate artifacts, fetch remote evidence, or approve external actions.
