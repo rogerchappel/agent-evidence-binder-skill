@@ -33,6 +33,9 @@ Local files only. No network calls, publishing, or external account writes. Gene
 
 ## Release Readiness
 
+`npm run release:readiness` validates package metadata, CLI bin metadata, npm
+allowlist coverage, required support docs, and CI presence.
+
 `npm run release:check` runs syntax checks, the build placeholder, unit tests,
 the fixture-backed smoke, and a package smoke that verifies key runtime files
 are present in the tarball.
