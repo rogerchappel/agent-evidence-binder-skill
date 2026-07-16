@@ -83,3 +83,7 @@ npm run release:check
 ## Limitations
 
 The binder trusts local file paths and command notes supplied by the caller. It does not authenticate artifacts, fetch remote evidence, or approve external actions.
+
+## Release notes
+
+Before tagging a release, confirm the smoke fixture still represents the intended workflow and summarize any changed output, limitations, or operator steps in the PR.
