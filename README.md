@@ -60,11 +60,15 @@ npm test
 ## CLI
 
 ```bash
-node src/cli.js fixtures/sample.json --format markdown
-node src/cli.js fixtures/sample.json --format json
+node src/cli.js \
+  --repo fixtures/sample-repo \
+  --claims fixtures/claims.json \
+  --commands fixtures/commands.json \
+  --out .tmp/evidence
 ```
 
-Use the Markdown report for reviewer handoff and the JSON report for automation that needs stable fields.
+This writes `.tmp/evidence/evidence-pack.json` for automation and
+`.tmp/evidence/evidence-summary.md` for reviewer handoff.
 
 ## Verification
 
@@ -72,6 +76,8 @@ Use the Markdown report for reviewer handoff and the JSON report for automation 
 npm test
 npm run check
 npm run smoke
+npm run package:smoke
+npm run release:check
 ```
 
 ## Limitations
