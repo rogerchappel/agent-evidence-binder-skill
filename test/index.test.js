@@ -41,16 +41,26 @@ test('rejects symlinked files and directories that escape the repository',t=>{
     /escapes/
   );
 });
-test('accepts symlinks whose targets remain inside the repository',t=>{
+test('accepts file and directory symlinks whose targets remain inside the repository',t=>{
   const repo=fs.mkdtempSync(path.join(os.tmpdir(),'evidence-binder-'));
   t.after(()=>fs.rmSync(repo,{recursive:true,force:true}));
   fs.writeFileSync(path.join(repo,'target.txt'),'evidence');
+  fs.mkdirSync(path.join(repo,'target-dir'));
+  fs.writeFileSync(path.join(repo,'target-dir','nested.txt'),'evidence');
   fs.symlinkSync('target.txt',path.join(repo,'link.txt'));
+  fs.symlinkSync('target-dir',path.join(repo,'link-dir'));
 
-  const claim=classifyClaim(repo,{id:'safe-link',text:'safe link',evidence:['link.txt']});
+  const claim=classifyClaim(repo,{
+    id:'safe-link',
+    text:'safe links',
+    evidence:['link.txt','link-dir/nested.txt']
+  });
 
   assert.equal(claim.status,'sourced');
-  assert.deepEqual(claim.evidence,[{path:'link.txt',exists:true}]);
+  assert.deepEqual(claim.evidence,[
+    {path:'link.txt',exists:true},
+    {path:path.join('link-dir','nested.txt'),exists:true}
+  ]);
 });
 test('CLI fixture output matches the committed expected evidence',async t=>{
   const out=fs.mkdtempSync(path.join(os.tmpdir(),'evidence-binder-cli-'));
