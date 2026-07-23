@@ -31,6 +31,12 @@ node src/cli.js \
 
 Local files only. No network calls, publishing, or external account writes. Generated outputs are review artifacts and require human approval before downstream action.
 
+Evidence paths are constrained to the repository after symlink resolution.
+In-repository symlinks are accepted, while symlinks that escape the repository
+are rejected. Claims receive `sourced` only when every cited path exists;
+partially missing evidence remains `needs-review` (or `inferred` when explicitly
+declared as an inference).
+
 ## Release Readiness
 
 `npm run release:readiness` validates package metadata, CLI bin metadata, npm
@@ -82,7 +88,9 @@ npm run release:check
 
 ## Limitations
 
-The binder trusts local file paths and command notes supplied by the caller. It does not authenticate artifacts, fetch remote evidence, or approve external actions.
+The binder constrains local evidence paths but does not authenticate artifact
+contents or command notes supplied by the caller. It does not fetch remote
+evidence or approve external actions.
 
 ## Release notes
 
