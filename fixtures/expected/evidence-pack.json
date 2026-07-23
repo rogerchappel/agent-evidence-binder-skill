@@ -37,6 +37,22 @@
         }
       ],
       "note": ""
+    },
+    {
+      "id": "partial",
+      "text": "The quickstart and user directory are documented.",
+      "status": "needs-review",
+      "evidence": [
+        {
+          "path": "README.md",
+          "exists": true
+        },
+        {
+          "path": "docs/users.md",
+          "exists": false
+        }
+      ],
+      "note": ""
     }
   ],
   "commands": [

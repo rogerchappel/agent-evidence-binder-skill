@@ -21,6 +21,14 @@
       "evidence": [
         "docs/users.md"
       ]
+    },
+    {
+      "id": "partial",
+      "text": "The quickstart and user directory are documented.",
+      "evidence": [
+        "README.md",
+        "docs/users.md"
+      ]
     }
   ]
 }
