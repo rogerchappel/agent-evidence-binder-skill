@@ -67,6 +67,10 @@ test('CLI fixture output matches the committed expected evidence',async t=>{
 
   assert.deepEqual(actual.claims,expected.claims);
   assert.deepEqual(actual.commands,expected.commands);
+  const normalizeGeneratedAt=summary=>summary.replace(/^Generated: .*$/m,'Generated: <dynamic>');
+  const actualSummary=fs.readFileSync(path.join(out,'evidence-summary.md'),'utf8');
+  const expectedSummary=fs.readFileSync('fixtures/expected/evidence-summary.md','utf8');
+  assert.equal(normalizeGeneratedAt(actualSummary),normalizeGeneratedAt(expectedSummary));
 });
 test('CLI exposes package version',async()=>{const {stdout}=await run(process.execPath,['src/cli.js','--version']);assert.match(stdout,/^0\.1\.0\n$/);});
 test('CLI exposes usage help',async()=>{const {stdout}=await run(process.execPath,['src/cli.js','--help']);assert.match(stdout,/Usage: agent-evidence-binder/);assert.match(stdout,/--repo <dir>/);assert.match(stdout,/--claims <claims\.json>/);});
