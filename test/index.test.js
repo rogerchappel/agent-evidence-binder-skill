@@ -52,5 +52,21 @@ test('accepts symlinks whose targets remain inside the repository',t=>{
   assert.equal(claim.status,'sourced');
   assert.deepEqual(claim.evidence,[{path:'link.txt',exists:true}]);
 });
+test('CLI fixture output matches the committed expected evidence',async t=>{
+  const out=fs.mkdtempSync(path.join(os.tmpdir(),'evidence-binder-cli-'));
+  t.after(()=>fs.rmSync(out,{recursive:true,force:true}));
+  await run(process.execPath,[
+    'src/cli.js',
+    '--repo','fixtures/sample-repo',
+    '--claims','fixtures/claims.json',
+    '--commands','fixtures/commands.json',
+    '--out',out
+  ]);
+  const actual=JSON.parse(fs.readFileSync(path.join(out,'evidence-pack.json'),'utf8'));
+  const expected=JSON.parse(fs.readFileSync('fixtures/expected/evidence-pack.json','utf8'));
+
+  assert.deepEqual(actual.claims,expected.claims);
+  assert.deepEqual(actual.commands,expected.commands);
+});
 test('CLI exposes package version',async()=>{const {stdout}=await run(process.execPath,['src/cli.js','--version']);assert.match(stdout,/^0\.1\.0\n$/);});
 test('CLI exposes usage help',async()=>{const {stdout}=await run(process.execPath,['src/cli.js','--help']);assert.match(stdout,/Usage: agent-evidence-binder/);assert.match(stdout,/--repo <dir>/);assert.match(stdout,/--claims <claims\.json>/);});
