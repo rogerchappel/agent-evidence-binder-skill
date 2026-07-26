@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Publish a supported ESM library entry point for package consumers.
+- Reject missing CLI flag values with concise usage errors before filesystem work.
+- Install the generated tarball during package smoke checks and verify its public import and binary.
 - Add release-readiness checks for package metadata, pack contents, and CI verification.
 - Correct README CLI examples so they match the shipped fixture-backed command.
 - Reject evidence paths that escape the repository through filesystem symlinks.

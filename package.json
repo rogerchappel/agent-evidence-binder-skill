@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "Bundle repository evidence, command output, and claims into reviewable local evidence packets.",
   "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
   "bin": {
     "agent-evidence-binder": "src/cli.js"
   },

@@ -84,3 +84,18 @@ test('CLI fixture output matches the committed expected evidence',async t=>{
 });
 test('CLI exposes package version',async()=>{const {stdout}=await run(process.execPath,['src/cli.js','--version']);assert.match(stdout,/^0\.1\.0\n$/);});
 test('CLI exposes usage help',async()=>{const {stdout}=await run(process.execPath,['src/cli.js','--help']);assert.match(stdout,/Usage: agent-evidence-binder/);assert.match(stdout,/--repo <dir>/);assert.match(stdout,/--claims <claims\.json>/);});
+for(const flag of ['--repo','--claims','--commands','--out']){
+  test(`CLI rejects a missing value for ${flag}`,async()=>{
+    const args=['src/cli.js','--repo','fixtures/sample-repo','--claims','fixtures/claims.json'];
+    const index=args.indexOf(flag);
+    if(index===-1)args.push(flag);
+    else args.splice(index+1,1);
+    await assert.rejects(run(process.execPath,args),error=>{
+      assert.equal(error.code,2);
+      assert.match(error.stderr,new RegExp(`Error: ${flag} requires a value`));
+      assert.match(error.stderr,/Usage: agent-evidence-binder/);
+      assert.doesNotMatch(error.stderr,/\n\s+at /);
+      return true;
+    });
+  });
+}

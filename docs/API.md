@@ -1,11 +1,32 @@
 # API
 
-The package exposes pure local functions from `src/index.js` for agents that prefer a library call over the CLI.
+The package exposes pure local functions through its supported ESM entry point:
+
+```js
+import {
+  buildEvidencePack,
+  classifyClaim,
+  ensureInside,
+  readJson,
+  renderSummary,
+  writeEvidencePack
+} from "agent-evidence-binder-skill";
+```
+
+These functions are implemented in `src/index.js`; consumers should use the
+package import above rather than depending on that internal path.
 
 - Input readers accept local paths supplied by the caller.
 - Builders return plain JSON-compatible objects.
 - Renderers produce Markdown review briefs.
 - Writers create only the requested output directory.
+
+## CLI errors
+
+`--repo`, `--claims`, `--commands`, and `--out` require a following value.
+Missing values are rejected before filesystem work. The CLI writes a concise,
+actionable error and usage to stderr without a stack trace, then exits with
+status 2.
 
 ## Evidence path safety
 
