@@ -17,6 +17,12 @@ npx agent-evidence-binder --help
 npx agent-evidence-binder --version
 ```
 
+Import the supported ESM library entry point:
+
+```js
+import { buildEvidencePack, classifyClaim } from "agent-evidence-binder-skill";
+```
+
 Generate a local evidence packet from the included fixtures:
 
 ```bash
@@ -53,7 +59,9 @@ CI uses the committed lockfile with `npm ci` so pull requests exercise the same
 dependency graph as local release checks.
 
 The package smoke also verifies that the API notes, examples, changelog,
-license, and security policy are included in the npm tarball.
+license, and security policy are included in the npm tarball. It then installs
+that tarball in an isolated consumer project and verifies the public ESM import
+and installed binary help/version surfaces.
 
 ## Local Verification
 
@@ -75,6 +83,10 @@ node src/cli.js \
 
 This writes `.tmp/evidence/evidence-pack.json` for automation and
 `.tmp/evidence/evidence-summary.md` for reviewer handoff.
+
+Value-taking flags reject a missing value (including when the next token is
+another flag), print a concise error plus usage without a stack trace, and exit
+with status 2 before reading or writing files.
 
 ## Verification
 
