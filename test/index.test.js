@@ -99,3 +99,32 @@ for(const flag of ['--repo','--claims','--commands','--out']){
     });
   });
 }
+const invalidCliCases=[
+  {name:'an unknown option',extra:['--bogus'],message:'unknown option: --bogus'},
+  {name:'an unexpected positional argument',extra:['stray'],message:'unexpected argument: stray'},
+  {name:'a duplicate value-taking flag',extra:['--repo','fixtures/sample-repo'],message:'duplicate option: --repo'}
+];
+for(const {name,extra,message} of invalidCliCases){
+  test(`CLI rejects ${name} before creating output`,async t=>{
+    const sandbox=fs.mkdtempSync(path.join(os.tmpdir(),'evidence-binder-invalid-cli-'));
+    t.after(()=>fs.rmSync(sandbox,{recursive:true,force:true}));
+    const out=path.join(sandbox,'output');
+    const args=[
+      path.resolve('src/cli.js'),
+      '--repo',path.resolve('fixtures/sample-repo'),
+      '--claims',path.resolve('fixtures/claims.json'),
+      '--out',out,
+      ...extra
+    ];
+
+    await assert.rejects(run(process.execPath,args,{cwd:sandbox}),error=>{
+      assert.equal(error.code,2);
+      assert.match(error.stderr,new RegExp(`Error: ${message}`));
+      assert.match(error.stderr,/Usage: agent-evidence-binder/);
+      assert.doesNotMatch(error.stderr,/\n\s+at /);
+      return true;
+    });
+    assert.equal(fs.existsSync(out),false);
+    assert.deepEqual(fs.readdirSync(sandbox),[]);
+  });
+}

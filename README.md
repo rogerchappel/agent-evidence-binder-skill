@@ -84,9 +84,11 @@ node src/cli.js \
 This writes `.tmp/evidence/evidence-pack.json` for automation and
 `.tmp/evidence/evidence-summary.md` for reviewer handoff.
 
-Value-taking flags reject a missing value (including when the next token is
-another flag), print a concise error plus usage without a stack trace, and exit
-with status 2 before reading or writing files.
+CLI arguments are parsed strictly before any input is read or output is written.
+Unknown options, unexpected positional arguments, duplicate value-taking flags,
+and missing values (including when the next token is another flag) identify the
+offending token or flag, print a concise error plus usage without a stack trace,
+and exit with status 2.
 
 ## Verification
 
