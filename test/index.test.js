@@ -18,6 +18,32 @@ test('requires every cited evidence path before sourcing a claim',()=>{
   assert.equal(pack.claims[1].status,'needs-review');
   assert.equal(pack.claims[2].status,'needs-review');
 });
+test('rejects malformed claim collections with field-specific errors',()=>{
+  assert.throws(
+    ()=>buildEvidencePack({repoRoot:'fixtures/sample-repo',claims:{}}),
+    /claims must be an array/
+  );
+  assert.throws(
+    ()=>buildEvidencePack({repoRoot:'fixtures/sample-repo',claims:[null]}),
+    /claims\[0\] must be an object/
+  );
+  assert.throws(
+    ()=>buildEvidencePack({repoRoot:'fixtures/sample-repo',claims:[{id:'x',text:'x',evidence:{}}]}),
+    /claims\[0\]\.evidence must be an array/
+  );
+});
+test('rejects malformed evidence entries with field-specific errors',()=>{
+  for(const [evidence,message] of [
+    [[{}],/claim\.evidence\[0\]\.path must be a string/],
+    [[{path:7}],/claim\.evidence\[0\]\.path must be a string/],
+    [[null],/claim\.evidence\[0\] must be a string or an object with a path/]
+  ]){
+    assert.throws(
+      ()=>classifyClaim('fixtures/sample-repo',{id:'x',text:'x',evidence}),
+      message
+    );
+  }
+});
 test('rejects lexical traversal outside the repository',()=>{
   assert.throws(()=>classifyClaim('fixtures/sample-repo',{id:'x',text:'bad',evidence:['../secret']}),/escapes/);
 });
@@ -128,3 +154,24 @@ for(const {name,extra,message} of invalidCliCases){
     assert.deepEqual(fs.readdirSync(sandbox),[]);
   });
 }
+test('CLI rejects malformed claims without creating output',async t=>{
+  const sandbox=fs.mkdtempSync(path.join(os.tmpdir(),'evidence-binder-invalid-claims-'));
+  t.after(()=>fs.rmSync(sandbox,{recursive:true,force:true}));
+  const claims=path.join(sandbox,'claims.json');
+  const out=path.join(sandbox,'output');
+  fs.writeFileSync(claims,JSON.stringify({claims:[{id:'x',text:'x',evidence:[{}]}]}));
+
+  await assert.rejects(run(process.execPath,[
+    path.resolve('src/cli.js'),
+    '--repo',path.resolve('fixtures/sample-repo'),
+    '--claims',claims,
+    '--out',out
+  ],{cwd:sandbox}),error=>{
+    assert.equal(error.code,2);
+    assert.match(error.stderr,/Error: claims\[0\]\.evidence\[0\]\.path must be a string/);
+    assert.doesNotMatch(error.stderr,/paths\[|\n\s+at /);
+    return true;
+  });
+  assert.equal(fs.existsSync(out),false);
+  assert.deepEqual(fs.readdirSync(sandbox),['claims.json']);
+});
