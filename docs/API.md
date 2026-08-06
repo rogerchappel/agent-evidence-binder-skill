@@ -30,6 +30,25 @@ status 2.
 
 ## Evidence path safety
 
+`buildEvidencePack` accepts `claims` as an array of claim objects. Each claim
+requires string `id` and `text` fields and may include an `evidence` array. An
+evidence entry is either a path string or an object whose `path` field is a
+string. Omitting `evidence` is equivalent to an empty array. For example:
+
+```js
+{
+  id: "build-check",
+  text: "The package builds successfully",
+  evidence: ["package.json", { path: "scripts/build.js" }]
+}
+```
+
+Malformed collections, claims, and evidence entries throw `TypeError` with the
+invalid field path (for example, `claims[0].evidence[1].path must be a string`).
+Validation happens before evidence path inspection. The CLI reports the same
+field-specific message and does not create its output directory for rejected
+claim input.
+
 `classifyClaim(repoRoot, claim)` checks every evidence path twice: first for
 lexical containment and then against the real filesystem location of its
 nearest existing ancestor. A symlink is accepted only when its resolved target

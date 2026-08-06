@@ -24,7 +24,37 @@ function inspectEvidencePath(repoRoot,target){
   ensureInside(realBase,realFile);
   return {path:path.relative(base,file),exists:missing.length===0};
 }
-export function classifyClaim(repoRoot,claim){const evidence=Array.isArray(claim.evidence)?claim.evidence:[];const checked=evidence.map((item)=>{const p=typeof item==='string'?item:item.path;return inspectEvidencePath(repoRoot,p);});const complete=checked.length>0&&checked.every((x)=>x.exists);const status=complete?'sourced':(claim.inference?'inferred':'needs-review');return {id:claim.id,text:claim.text,status,evidence:checked,note:claim.note||''};}
-export function buildEvidencePack({repoRoot,claims=[],commands=[]}){return {generatedAt:new Date().toISOString(),repoRoot:path.resolve(repoRoot),claims:claims.map((c)=>classifyClaim(repoRoot,c)),commands};}
+function validateClaim(claim,label){
+  if(claim===null||typeof claim!=='object'||Array.isArray(claim)){
+    throw new TypeError(label+' must be an object');
+  }
+  if(typeof claim.id!=='string') throw new TypeError(label+'.id must be a string');
+  if(typeof claim.text!=='string') throw new TypeError(label+'.text must be a string');
+  if(claim.evidence!==undefined&&!Array.isArray(claim.evidence)){
+    throw new TypeError(label+'.evidence must be an array');
+  }
+  const evidence=claim.evidence||[];
+  return evidence.map((item,index)=>{
+    const itemLabel=label+'.evidence['+index+']';
+    if(typeof item==='string') return item;
+    if(item===null||typeof item!=='object'||Array.isArray(item)){
+      throw new TypeError(itemLabel+' must be a string or an object with a path');
+    }
+    if(typeof item.path!=='string') throw new TypeError(itemLabel+'.path must be a string');
+    return item.path;
+  });
+}
+function classifyValidatedClaim(repoRoot,claim,label){
+  const evidence=validateClaim(claim,label);
+  const checked=evidence.map(target=>inspectEvidencePath(repoRoot,target));
+  const complete=checked.length>0&&checked.every(x=>x.exists);
+  const status=complete?'sourced':(claim.inference?'inferred':'needs-review');
+  return {id:claim.id,text:claim.text,status,evidence:checked,note:claim.note||''};
+}
+export function classifyClaim(repoRoot,claim){return classifyValidatedClaim(repoRoot,claim,'claim');}
+export function buildEvidencePack({repoRoot,claims=[],commands=[]}){
+  if(!Array.isArray(claims)) throw new TypeError('claims must be an array');
+  return {generatedAt:new Date().toISOString(),repoRoot:path.resolve(repoRoot),claims:claims.map((claim,index)=>classifyValidatedClaim(repoRoot,claim,'claims['+index+']')),commands};
+}
 export function renderSummary(pack){const counts=pack.claims.reduce((a,c)=>{a[c.status]=(a[c.status]||0)+1;return a;},{});const lines=['# Evidence Summary','','Generated: '+pack.generatedAt,'','## Status Counts'];for(const k of ['sourced','inferred','needs-review']) lines.push('- '+k+': '+(counts[k]||0));lines.push('','## Claims');for(const c of pack.claims) lines.push('- ['+c.status+'] '+c.id+': '+c.text);return lines.join('\n')+'\n';}
 export function writeEvidencePack(pack,outDir){fs.mkdirSync(outDir,{recursive:true});fs.writeFileSync(path.join(outDir,'evidence-pack.json'),JSON.stringify(pack,null,2)+'\n');fs.writeFileSync(path.join(outDir,'evidence-summary.md'),renderSummary(pack));}
