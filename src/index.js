@@ -28,8 +28,8 @@ function validateClaim(claim,label){
   if(claim===null||typeof claim!=='object'||Array.isArray(claim)){
     throw new TypeError(label+' must be an object');
   }
-  if(typeof claim.id!=='string') throw new TypeError(label+'.id must be a string');
-  if(typeof claim.text!=='string') throw new TypeError(label+'.text must be a string');
+  if(typeof claim.id!=='string'||claim.id.trim()==='') throw new TypeError(label+'.id must be a non-empty string');
+  if(typeof claim.text!=='string'||claim.text.trim()==='') throw new TypeError(label+'.text must be a non-empty string');
   if(claim.evidence!==undefined&&!Array.isArray(claim.evidence)){
     throw new TypeError(label+'.evidence must be an array');
   }
@@ -44,6 +44,21 @@ function validateClaim(claim,label){
     return item.path;
   });
 }
+function validateCommands(commands){
+  if(!Array.isArray(commands)) throw new TypeError('commands must be an array');
+  for(const [index,command] of commands.entries()){
+    const label='commands['+index+']';
+    if(command===null||typeof command!=='object'||Array.isArray(command)){
+      throw new TypeError(label+' must be an object');
+    }
+    if(typeof command.name!=='string'||command.name.trim()===''){
+      throw new TypeError(label+'.name must be a non-empty string');
+    }
+    if(typeof command.status!=='string'||command.status.trim()===''){
+      throw new TypeError(label+'.status must be a non-empty string');
+    }
+  }
+}
 function classifyValidatedClaim(repoRoot,claim,label){
   const evidence=validateClaim(claim,label);
   const checked=evidence.map(target=>inspectEvidencePath(repoRoot,target));
@@ -54,6 +69,7 @@ function classifyValidatedClaim(repoRoot,claim,label){
 export function classifyClaim(repoRoot,claim){return classifyValidatedClaim(repoRoot,claim,'claim');}
 export function buildEvidencePack({repoRoot,claims=[],commands=[]}){
   if(!Array.isArray(claims)) throw new TypeError('claims must be an array');
+  validateCommands(commands);
   return {generatedAt:new Date().toISOString(),repoRoot:path.resolve(repoRoot),claims:claims.map((claim,index)=>classifyValidatedClaim(repoRoot,claim,'claims['+index+']')),commands};
 }
 export function renderSummary(pack){const counts=pack.claims.reduce((a,c)=>{a[c.status]=(a[c.status]||0)+1;return a;},{});const lines=['# Evidence Summary','','Generated: '+pack.generatedAt,'','## Status Counts'];for(const k of ['sourced','inferred','needs-review']) lines.push('- '+k+': '+(counts[k]||0));lines.push('','## Claims');for(const c of pack.claims) lines.push('- ['+c.status+'] '+c.id+': '+c.text);return lines.join('\n')+'\n';}

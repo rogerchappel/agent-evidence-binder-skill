@@ -31,6 +31,28 @@ test('rejects malformed claim collections with field-specific errors',()=>{
     ()=>buildEvidencePack({repoRoot:'fixtures/sample-repo',claims:[{id:'x',text:'x',evidence:{}}]}),
     /claims\[0\]\.evidence must be an array/
   );
+  for(const [field,value] of [['id',''],['id',' \t '],['text',''],['text','\n']]){
+    assert.throws(
+      ()=>buildEvidencePack({repoRoot:'fixtures/sample-repo',claims:[{id:'id',text:'text',[field]:value}]}),
+      new RegExp(`claims\\[0\\]\\.${field} must be a non-empty string`)
+    );
+  }
+});
+test('rejects malformed commands with entry-specific errors',()=>{
+  const valid={name:'npm test',status:'pass'};
+  for(const [commands,message] of [
+    [{},/commands must be an array/],
+    [[null],/commands\[0\] must be an object/],
+    [[{...valid,name:''}],/commands\[0\]\.name must be a non-empty string/],
+    [[{...valid,name:'  '}],/commands\[0\]\.name must be a non-empty string/],
+    [[{...valid,status:7}],/commands\[0\]\.status must be a non-empty string/],
+    [[{...valid,status:'\n'}],/commands\[0\]\.status must be a non-empty string/]
+  ]){
+    assert.throws(
+      ()=>buildEvidencePack({repoRoot:'fixtures/sample-repo',claims:[],commands}),
+      message
+    );
+  }
 });
 test('rejects malformed evidence entries with field-specific errors',()=>{
   for(const [evidence,message] of [
@@ -175,3 +197,28 @@ test('CLI rejects malformed claims without creating output',async t=>{
   assert.equal(fs.existsSync(out),false);
   assert.deepEqual(fs.readdirSync(sandbox),['claims.json']);
 });
+for(const wrapped of [false,true]){
+  test(`CLI rejects malformed ${wrapped?'wrapped':'unwrapped'} commands without creating output`,async t=>{
+    const sandbox=fs.mkdtempSync(path.join(os.tmpdir(),'evidence-binder-invalid-commands-'));
+    t.after(()=>fs.rmSync(sandbox,{recursive:true,force:true}));
+    const commandsFile=path.join(sandbox,'commands.json');
+    const out=path.join(sandbox,'output');
+    const commands=[{name:'npm test',status:' '}];
+    fs.writeFileSync(commandsFile,JSON.stringify(wrapped?{commands}:commands));
+
+    await assert.rejects(run(process.execPath,[
+      path.resolve('src/cli.js'),
+      '--repo',path.resolve('fixtures/sample-repo'),
+      '--claims',path.resolve('fixtures/claims.json'),
+      '--commands',commandsFile,
+      '--out',out
+    ],{cwd:sandbox}),error=>{
+      assert.equal(error.code,2);
+      assert.match(error.stderr,/Error: commands\[0\]\.status must be a non-empty string/);
+      assert.doesNotMatch(error.stderr,/\n\s+at /);
+      return true;
+    });
+    assert.equal(fs.existsSync(out),false);
+    assert.deepEqual(fs.readdirSync(sandbox),['commands.json']);
+  });
+}
