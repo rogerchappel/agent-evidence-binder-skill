@@ -32,8 +32,8 @@ status 2.
 
 `buildEvidencePack` accepts `claims` as an array of claim objects. Each claim
 requires non-empty, non-whitespace string `id` and `text` fields and may include
-an `evidence` array. An
-evidence entry is either a path string or an object whose `path` field is a
+an `evidence` array. An evidence entry is either a non-empty, non-whitespace
+path string or an object whose `path` field is a non-empty, non-whitespace
 string. Omitting `evidence` is equivalent to an empty array. For example:
 
 ```js
@@ -57,7 +57,7 @@ buildEvidencePack({
 
 Malformed collections, claims, and evidence entries throw `TypeError` with the
 invalid field path (for example, `claims[0].evidence[1].path must be a string`
-or `commands[0].status must be a non-empty string`).
+or `claims[0].evidence[1].path must be a non-empty string`).
 Validation happens before evidence path inspection. The CLI reports the same
 field-specific message and does not create its output directory for rejected
 claim input.

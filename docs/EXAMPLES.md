@@ -18,8 +18,10 @@ The command writes:
 - `.tmp/evidence/evidence-summary.md` for human PR or release review.
 
 The claims file may be either an array or `{ "claims": [...] }`. Claim entries
-require non-empty string `id` and `text` fields. The commands file may likewise
-be an array or `{ "commands": [...] }`; each command entry has this shape:
+require non-empty string `id` and `text` fields. Each evidence entry must be a
+non-empty, non-whitespace path string or an object with a non-empty,
+non-whitespace string `path`. The commands file may likewise be an array or
+`{ "commands": [...] }`; each command entry has this shape:
 
 ```json
 {
@@ -28,8 +30,8 @@ be an array or `{ "commands": [...] }`; each command entry has this shape:
 }
 ```
 
-Empty or whitespace-only required fields and other command shapes are rejected
-before the output directory is created.
+Empty or whitespace-only required fields, including evidence paths, and other
+invalid input shapes are rejected before the output directory is created.
 
 ## CLI Surface Check
 
