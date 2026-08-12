@@ -36,11 +36,15 @@ function validateClaim(claim,label){
   const evidence=claim.evidence||[];
   return evidence.map((item,index)=>{
     const itemLabel=label+'.evidence['+index+']';
-    if(typeof item==='string') return item;
+    if(typeof item==='string'){
+      if(item.trim()==='') throw new TypeError(itemLabel+' must be a non-empty string');
+      return item;
+    }
     if(item===null||typeof item!=='object'||Array.isArray(item)){
       throw new TypeError(itemLabel+' must be a string or an object with a path');
     }
     if(typeof item.path!=='string') throw new TypeError(itemLabel+'.path must be a string');
+    if(item.path.trim()==='') throw new TypeError(itemLabel+'.path must be a non-empty string');
     return item.path;
   });
 }
