@@ -56,8 +56,12 @@ test('rejects malformed commands with entry-specific errors',()=>{
 });
 test('rejects malformed evidence entries with field-specific errors',()=>{
   for(const [evidence,message] of [
+    [[''],/claim\.evidence\[0\] must be a non-empty string/],
+    [[' \t\n '],/claim\.evidence\[0\] must be a non-empty string/],
     [[{}],/claim\.evidence\[0\]\.path must be a string/],
     [[{path:7}],/claim\.evidence\[0\]\.path must be a string/],
+    [[{path:''}],/claim\.evidence\[0\]\.path must be a non-empty string/],
+    [[{path:' \t\n '}],/claim\.evidence\[0\]\.path must be a non-empty string/],
     [[null],/claim\.evidence\[0\] must be a string or an object with a path/]
   ]){
     assert.throws(
@@ -65,6 +69,19 @@ test('rejects malformed evidence entries with field-specific errors',()=>{
       message
     );
   }
+});
+test('preserves valid file and directory evidence paths',()=>{
+  const claim=classifyClaim('fixtures/sample-repo',{
+    id:'valid-paths',
+    text:'valid file and directory evidence',
+    evidence:['README.md',{path:'src'}]
+  });
+
+  assert.equal(claim.status,'sourced');
+  assert.deepEqual(claim.evidence,[
+    {path:'README.md',exists:true},
+    {path:'src',exists:true}
+  ]);
 });
 test('rejects lexical traversal outside the repository',()=>{
   assert.throws(()=>classifyClaim('fixtures/sample-repo',{id:'x',text:'bad',evidence:['../secret']}),/escapes/);
@@ -192,6 +209,27 @@ test('CLI rejects malformed claims without creating output',async t=>{
     assert.equal(error.code,2);
     assert.match(error.stderr,/Error: claims\[0\]\.evidence\[0\]\.path must be a string/);
     assert.doesNotMatch(error.stderr,/paths\[|\n\s+at /);
+    return true;
+  });
+  assert.equal(fs.existsSync(out),false);
+  assert.deepEqual(fs.readdirSync(sandbox),['claims.json']);
+});
+test('CLI rejects blank evidence paths without creating output',async t=>{
+  const sandbox=fs.mkdtempSync(path.join(os.tmpdir(),'evidence-binder-blank-evidence-'));
+  t.after(()=>fs.rmSync(sandbox,{recursive:true,force:true}));
+  const claims=path.join(sandbox,'claims.json');
+  const out=path.join(sandbox,'output');
+  fs.writeFileSync(claims,JSON.stringify({claims:[{id:'x',text:'x',evidence:[{path:'  '}]}]}));
+
+  await assert.rejects(run(process.execPath,[
+    path.resolve('src/cli.js'),
+    '--repo',path.resolve('fixtures/sample-repo'),
+    '--claims',claims,
+    '--out',out
+  ],{cwd:sandbox}),error=>{
+    assert.equal(error.code,2);
+    assert.match(error.stderr,/Error: claims\[0\]\.evidence\[0\]\.path must be a non-empty string/);
+    assert.doesNotMatch(error.stderr,/\n\s+at /);
     return true;
   });
   assert.equal(fs.existsSync(out),false);
