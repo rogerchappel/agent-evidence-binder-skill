@@ -17,11 +17,11 @@
     {
       "id": "inferred",
       "text": "The tool supports review workflows.",
-      "status": "sourced",
+      "status": "inferred",
       "evidence": [
         {
-          "path": "src/index.js",
-          "exists": true
+          "path": "docs/review-workflows.md",
+          "exists": false
         }
       ],
       "note": ""

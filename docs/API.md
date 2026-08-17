@@ -32,7 +32,9 @@ status 2.
 
 `buildEvidencePack` accepts `claims` as an array of claim objects. Each claim
 requires non-empty, non-whitespace string `id` and `text` fields and may include
-an `evidence` array. An evidence entry is either a non-empty, non-whitespace
+an `evidence` array. The optional `inference` field must be a boolean when
+present: `true` explicitly permits an `inferred` result for incomplete evidence,
+while `false` keeps incomplete evidence at `needs-review`. An evidence entry is either a non-empty, non-whitespace
 path string or an object whose `path` field is a non-empty, non-whitespace
 string. Omitting `evidence` is equivalent to an empty array. For example:
 
@@ -70,5 +72,6 @@ resolve outside the repository cause the call to throw before an evidence pack
 is written.
 
 A claim is `sourced` only when it cites at least one evidence path and every
-cited path exists. If any cited path is missing, the claim is `inferred` when
-the caller explicitly sets `inference`; otherwise it is `needs-review`.
+cited path exists. If any cited path is missing, the claim is `inferred` only
+when `inference` is `true`; an omitted or `false` value produces `needs-review`.
+Non-boolean values such as the string `"false"` are rejected.
