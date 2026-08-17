@@ -12,7 +12,7 @@
       "text": "The tool supports review workflows.",
       "inference": true,
       "evidence": [
-        "src/index.js"
+        "docs/review-workflows.md"
       ]
     },
     {

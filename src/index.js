@@ -30,6 +30,9 @@ function validateClaim(claim,label){
   }
   if(typeof claim.id!=='string'||claim.id.trim()==='') throw new TypeError(label+'.id must be a non-empty string');
   if(typeof claim.text!=='string'||claim.text.trim()==='') throw new TypeError(label+'.text must be a non-empty string');
+  if(claim.inference!==undefined&&typeof claim.inference!=='boolean'){
+    throw new TypeError(label+'.inference must be a boolean');
+  }
   if(claim.evidence!==undefined&&!Array.isArray(claim.evidence)){
     throw new TypeError(label+'.evidence must be an array');
   }

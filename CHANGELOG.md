@@ -10,6 +10,7 @@
 - Reject evidence paths that escape the repository through filesystem symlinks.
 - Require every cited path to exist before classifying a claim as sourced.
 - Reject blank claim fields and malformed command entries before writing output.
+- Require the optional claim `inference` field to be boolean.
 ## 0.1.0
 
 - Initial pre-release package for bundling repository evidence, command output, and supported claims into local review packets.

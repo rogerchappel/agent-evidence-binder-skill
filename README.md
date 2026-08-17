@@ -41,7 +41,8 @@ Evidence paths are constrained to the repository after symlink resolution.
 In-repository symlinks are accepted, while symlinks that escape the repository
 are rejected. Claims receive `sourced` only when every cited path exists;
 partially missing evidence remains `needs-review` (or `inferred` when explicitly
-declared as an inference).
+declared with `"inference": true`). The optional `inference` field must be a
+boolean; strings such as `"false"` are rejected.
 
 ## Release Readiness
 

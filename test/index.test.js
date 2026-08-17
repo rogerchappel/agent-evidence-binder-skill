@@ -38,6 +38,24 @@ test('rejects malformed claim collections with field-specific errors',()=>{
     );
   }
 });
+test('accepts boolean inference values and rejects other types',()=>{
+  const inferred=classifyClaim('fixtures/sample-repo',{
+    id:'inferred',text:'Explicit inference',inference:true,evidence:['missing.md']
+  });
+  const reviewed=classifyClaim('fixtures/sample-repo',{
+    id:'reviewed',text:'Explicitly not inferred',inference:false,evidence:['missing.md']
+  });
+
+  assert.equal(inferred.status,'inferred');
+  assert.equal(reviewed.status,'needs-review');
+  assert.throws(
+    ()=>buildEvidencePack({
+      repoRoot:'fixtures/sample-repo',
+      claims:[{id:'bad',text:'Invalid inference',inference:'false',evidence:['missing.md']}]
+    }),
+    /claims\[0\]\.inference must be a boolean/
+  );
+});
 test('rejects malformed commands with entry-specific errors',()=>{
   const valid={name:'npm test',status:'pass'};
   for(const [commands,message] of [
@@ -229,6 +247,29 @@ test('CLI rejects blank evidence paths without creating output',async t=>{
   ],{cwd:sandbox}),error=>{
     assert.equal(error.code,2);
     assert.match(error.stderr,/Error: claims\[0\]\.evidence\[0\]\.path must be a non-empty string/);
+    assert.doesNotMatch(error.stderr,/\n\s+at /);
+    return true;
+  });
+  assert.equal(fs.existsSync(out),false);
+  assert.deepEqual(fs.readdirSync(sandbox),['claims.json']);
+});
+test('CLI rejects a non-boolean inference without creating output',async t=>{
+  const sandbox=fs.mkdtempSync(path.join(os.tmpdir(),'evidence-binder-invalid-inference-'));
+  t.after(()=>fs.rmSync(sandbox,{recursive:true,force:true}));
+  const claims=path.join(sandbox,'claims.json');
+  const out=path.join(sandbox,'output');
+  fs.writeFileSync(claims,JSON.stringify({
+    claims:[{id:'bad',text:'Invalid inference',inference:'false',evidence:['missing.md']}]
+  }));
+
+  await assert.rejects(run(process.execPath,[
+    path.resolve('src/cli.js'),
+    '--repo',path.resolve('fixtures/sample-repo'),
+    '--claims',claims,
+    '--out',out
+  ],{cwd:sandbox}),error=>{
+    assert.equal(error.code,2);
+    assert.match(error.stderr,/Error: claims\[0\]\.inference must be a boolean/);
     assert.doesNotMatch(error.stderr,/\n\s+at /);
     return true;
   });
