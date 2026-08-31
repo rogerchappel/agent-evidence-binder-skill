@@ -66,6 +66,17 @@ function validateCommands(commands){
     }
   }
 }
+function validateUniqueClaimIds(claims){
+  const positions=new Map();
+  for(const [index,claim] of claims.entries()){
+    validateClaim(claim,'claims['+index+']');
+    const id=claim.id.trim();
+    if(positions.has(id)){
+      throw new TypeError('claims['+index+'].id duplicates claims['+positions.get(id)+'].id: '+JSON.stringify(id));
+    }
+    positions.set(id,index);
+  }
+}
 function classifyValidatedClaim(repoRoot,claim,label){
   const evidence=validateClaim(claim,label);
   const checked=evidence.map(target=>inspectEvidencePath(repoRoot,target));
@@ -77,6 +88,7 @@ export function classifyClaim(repoRoot,claim){return classifyValidatedClaim(repo
 export function buildEvidencePack({repoRoot,claims=[],commands=[]}){
   if(!Array.isArray(claims)) throw new TypeError('claims must be an array');
   validateCommands(commands);
+  validateUniqueClaimIds(claims);
   return {generatedAt:new Date().toISOString(),repoRoot:path.resolve(repoRoot),claims:claims.map((claim,index)=>classifyValidatedClaim(repoRoot,claim,'claims['+index+']')),commands};
 }
 export function renderSummary(pack){const counts=pack.claims.reduce((a,c)=>{a[c.status]=(a[c.status]||0)+1;return a;},{});const lines=['# Evidence Summary','','Generated: '+pack.generatedAt,'','## Status Counts'];for(const k of ['sourced','inferred','needs-review']) lines.push('- '+k+': '+(counts[k]||0));lines.push('','## Claims');for(const c of pack.claims) lines.push('- ['+c.status+'] '+c.id+': '+c.text);return lines.join('\n')+'\n';}
