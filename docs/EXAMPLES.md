@@ -20,7 +20,9 @@ The command writes:
 The claims file may be either an array or `{ "claims": [...] }`. Claim entries
 require non-empty string `id` and `text` fields. Each evidence entry must be a
 non-empty, non-whitespace path string or an object with a non-empty,
-non-whitespace string `path`. The commands file may likewise be an array or
+non-whitespace string `path`. IDs must be unique after surrounding whitespace
+is trimmed; duplicate IDs are rejected before evidence inspection or output
+creation. The commands file may likewise be an array or
 `{ "commands": [...] }`; each command entry has this shape:
 
 ```json

@@ -32,7 +32,9 @@ status 2.
 
 `buildEvidencePack` accepts `claims` as an array of claim objects. Each claim
 requires non-empty, non-whitespace string `id` and `text` fields and may include
-an `evidence` array. The optional `inference` field must be a boolean when
+an `evidence` array. Claim IDs must be unique after trimming surrounding
+whitespace; a duplicate is rejected with both claim positions and the
+conflicting trimmed ID before any evidence path is inspected. The optional `inference` field must be a boolean when
 present: `true` explicitly permits an `inferred` result for incomplete evidence,
 while `false` keeps incomplete evidence at `needs-review`. An evidence entry is either a non-empty, non-whitespace
 path string or an object whose `path` field is a non-empty, non-whitespace
