@@ -56,6 +56,23 @@ test('accepts boolean inference values and rejects other types',()=>{
     /claims\[0\]\.inference must be a boolean/
   );
 });
+test('rejects duplicate claim IDs before inspecting evidence',()=>{
+  const missingRoot=path.join(os.tmpdir(),'evidence-binder-root-that-does-not-exist');
+  assert.throws(
+    ()=>buildEvidencePack({repoRoot:missingRoot,claims:[
+      {id:'same',text:'first',evidence:['missing.md']},
+      {id:' same ',text:'second',evidence:['also-missing.md']}
+    ]}),
+    /claims\[1\]\.id duplicates claims\[0\]\.id: "same"/
+  );
+});
+test('preserves claims with distinct IDs',()=>{
+  const pack=buildEvidencePack({repoRoot:'fixtures/sample-repo',claims:[
+    {id:'first',text:'first'},
+    {id:'second',text:'second'}
+  ]});
+  assert.deepEqual(pack.claims.map(claim=>claim.id),['first','second']);
+});
 test('rejects malformed commands with entry-specific errors',()=>{
   const valid={name:'npm test',status:'pass'};
   for(const [commands,message] of [
@@ -164,6 +181,25 @@ test('CLI fixture output matches the committed expected evidence',async t=>{
   const actualSummary=fs.readFileSync(path.join(out,'evidence-summary.md'),'utf8');
   const expectedSummary=fs.readFileSync('fixtures/expected/evidence-summary.md','utf8');
   assert.equal(normalizeGeneratedAt(actualSummary),normalizeGeneratedAt(expectedSummary));
+});
+test('CLI rejects duplicate claim IDs without creating output',async t=>{
+  const sandbox=fs.mkdtempSync(path.join(os.tmpdir(),'evidence-binder-duplicates-'));
+  t.after(()=>fs.rmSync(sandbox,{recursive:true,force:true}));
+  const claims=path.join(sandbox,'claims.json');
+  const out=path.join(sandbox,'output');
+  fs.writeFileSync(claims,JSON.stringify([
+    {id:'duplicate',text:'first',evidence:['missing.md']},
+    {id:' duplicate ',text:'second',evidence:['also-missing.md']}
+  ]));
+  await assert.rejects(run(process.execPath,[
+    'src/cli.js','--repo','fixtures/sample-repo','--claims',claims,
+    '--commands','fixtures/commands.json','--out',out
+  ]),error=>{
+    assert.equal(error.code,2);
+    assert.match(error.stderr,/claims\[1\]\.id duplicates claims\[0\]\.id: "duplicate"/);
+    return true;
+  });
+  assert.equal(fs.existsSync(out),false);
 });
 test('CLI exposes package version',async()=>{const {stdout}=await run(process.execPath,['src/cli.js','--version']);assert.match(stdout,/^0\.1\.0\n$/);});
 test('CLI exposes usage help',async()=>{const {stdout}=await run(process.execPath,['src/cli.js','--help']);assert.match(stdout,/Usage: agent-evidence-binder/);assert.match(stdout,/--repo <dir>/);assert.match(stdout,/--claims <claims\.json>/);});
