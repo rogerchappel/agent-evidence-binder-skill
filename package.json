@@ -18,5 +18,13 @@
     "dry-run"
   ],
   "author": "Roger Chappel",
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rogerchappel/agent-evidence-binder-skill/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/agent-evidence-binder-skill#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rogerchappel/agent-evidence-binder-skill.git"
+  }
 }
