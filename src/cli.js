@@ -28,9 +28,10 @@ if(parsed.version){const pkg=readJson(new URL('../package.json',import.meta.url)
 const repoRoot=parsed.values.get('--repo'),claimsFile=parsed.values.get('--claims'),commandFile=parsed.values.get('--commands'),out=parsed.values.get('--out')||'evidence-out';
 if(!repoRoot)fail('--repo is required');
 if(!claimsFile)fail('--claims is required');
+function readInput(file,label){try{return readJson(file);}catch(error){if(error instanceof SyntaxError)throw new Error('Invalid JSON in '+label+' file '+file+': '+error.message);throw error;}}
 try{
-  const claimData=readJson(claimsFile);
-  const commandData=commandFile?readJson(commandFile):[];
+  const claimData=readInput(claimsFile,'claims');
+  const commandData=commandFile?readInput(commandFile,'commands'):[];
   const commands=commandData.commands||commandData;
   const pack=buildEvidencePack({repoRoot,claims:claimData.claims||claimData,commands});
   writeEvidencePack(pack,out);

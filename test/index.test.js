@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {execFile} from 'node:child_process';
+import {execFile,spawnSync} from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {promisify} from 'node:util';
+import {fileURLToPath} from 'node:url';
 import {buildEvidencePack,classifyClaim} from '../src/index.js';
 const run=promisify(execFile);
 test('requires every cited evidence path before sourcing a claim',()=>{
@@ -337,3 +338,18 @@ for(const wrapped of [false,true]){
     assert.deepEqual(fs.readdirSync(sandbox),['commands.json']);
   });
 }
+
+test('CLI reports malformed claims JSON without creating output artifacts',()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'evidence-binder-cli-'));
+ try {
+  const claims=path.join(dir,'claims.json');
+  const out=path.join(dir,'output');
+  fs.writeFileSync(claims,'{"claims": [');
+  const cli=fileURLToPath(new URL('../src/cli.js',import.meta.url));
+  const result=spawnSync(process.execPath,[cli,'--repo','fixtures/sample-repo','--claims',claims,'--out',out],{encoding:'utf8'});
+  assert.notEqual(result.status,0);
+  assert.match(result.stderr,/Invalid JSON in claims file .*claims\.json/);
+  assert.doesNotMatch(result.stderr,/SyntaxError|at .*\(/);
+  assert.equal(fs.existsSync(out),false);
+ } finally { fs.rmSync(dir,{recursive:true,force:true}); }
+});
